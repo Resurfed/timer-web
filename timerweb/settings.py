@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'timer.urls'
+ROOT_URLCONF = 'timerweb.urls'
 
 TEMPLATES = [
     {
@@ -62,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'timer.wsgi.application'
+WSGI_APPLICATION = 'timerweb.wsgi.application'
 
 
 # Database
