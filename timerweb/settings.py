@@ -45,6 +45,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'timerweb.urls'
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 TEMPLATES = [
     {
