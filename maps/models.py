@@ -5,13 +5,13 @@ class Map(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, max_length=50)
     author = models.CharField(max_length=50, blank=True)
-    type = models.IntegerField()
-    checkpoints = models.SmallIntegerField()
-    bonuses = models.SmallIntegerField()
-    difficulty = models.SmallIntegerField()
-    prevent_prehop = models.SmallIntegerField()
-    enable_baked_triggers = models.BooleanField()
-    active = models.BooleanField()
+    type = models.IntegerField(blank=True)
+    checkpoints = models.SmallIntegerField(blank=True)
+    bonuses = models.SmallIntegerField(blank=True)
+    difficulty = models.SmallIntegerField(blank=True)
+    prevent_prehop = models.SmallIntegerField(blank=True)
+    enable_baked_triggers = models.BooleanField(blank=True)
+    active = models.BooleanField(blank=True)
 
     def __str__(self):
         return self.name
