@@ -5,11 +5,25 @@ class Map(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, max_length=50)
     author = models.CharField(max_length=50, blank=True, default="")
-    type = models.IntegerField(blank=True, default=0)
+
+    MAP_TYPE_CHOICES = (
+        ('S', "Staged"),
+        ('L', "Linear")
+    )
+
+    type = models.CharField(max_length=1, blank=True, choices=MAP_TYPE_CHOICES, default='S')
     checkpoints = models.SmallIntegerField(blank=True, default=0)
     bonuses = models.SmallIntegerField(blank=True, default=0)
     difficulty = models.SmallIntegerField(blank=True, default=0)
-    prevent_prehop = models.SmallIntegerField(blank=True, default=0)
+
+    PREVENT_HOP_CHOICES = (
+        ('N', "Disabled"),
+        ('G', "Global"),
+        ('S', "Stage Start"),
+        ('F', "First Stage Start")
+    )
+
+    prevent_prehop = models.CharField(max_length=1, blank=True, choices=PREVENT_HOP_CHOICES, default='N')
     enable_baked_triggers = models.BooleanField(blank=True, default=0)
     active = models.BooleanField(blank=True, default=0)
 

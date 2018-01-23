@@ -18,6 +18,14 @@ class Time(models.Model):
     id = models.AutoField(primary_key=True)
     map = models.ForeignKey('maps.Map', on_delete=models.PROTECT)
     player = models.ForeignKey('users.Player', on_delete=models.PROTECT)
+
+    TIME_TYPE_CHOICES = (
+        ('M', 'Map'),
+        ('S', 'Stage'),
+        ('B', 'Bonus'),
+    )
+
+    type = models.CharField(max_length=1, choices=TIME_TYPE_CHOICES)
     type = models.SmallIntegerField()
     stage = models.SmallIntegerField()
     time = models.FloatField()
