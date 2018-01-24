@@ -17,9 +17,9 @@ class MapDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ZoneList(generics.ListCreateAPIView):
-	queryset = Zone.objects.all()
-	serializer_class = ZoneSerializer
-	filter_class = ZoneFilter
+    queryset = Zone.objects.all()
+    serializer_class = ZoneSerializer
+    filter_class = ZoneFilter
 
 
 class ZoneDetail(generics.RetrieveUpdateDestroyAPIView):

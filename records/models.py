@@ -21,21 +21,19 @@ class Time(models.Model):
 
     TIME_TYPE_CHOICES = (
         ('M', 'Map'),
-        ('S', 'Stage'),
         ('B', 'Bonus'),
     )
 
     type = models.CharField(max_length=1, choices=TIME_TYPE_CHOICES)
-    type = models.SmallIntegerField()
     stage = models.SmallIntegerField()
     time = models.FloatField()
-    rank = models.IntegerField()
+    rank = models.IntegerField(blank=True, null=True)
     date_created = models.DateTimeField()
     date_updated = models.DateTimeField()
     server = models.ForeignKey(Server, on_delete=models.PROTECT)
-    completions = models.IntegerField()
-    best_rank = models.IntegerField()
-    date_demoted = models.DateTimeField()
+    completions = models.IntegerField(blank=True, default=1)
+    best_rank = models.IntegerField(blank=True, null=True)
+    date_demoted = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         unique_together = (('map', 'player', 'stage', 'type'),)
@@ -43,6 +41,16 @@ class Time(models.Model):
 
     def __str__(self):
         return "%s - %s (Type: %s, Stage: %s)" % (self.player, self.map, self.type, self.stage)
+
+    def actual_rank(self):
+
+        # as an optimization, only the top 10 best times are ranked
+        if self.rank is not None:
+            return self.rank
+
+        faster_records = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time__lt=self.time)
+        tie_records_older = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time=self.time, id__lt=self.id)
+        return faster_records.count() + tie_records_older.count() + 1
 
 
 class Checkpoint(models.Model):
