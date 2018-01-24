@@ -48,9 +48,9 @@ class Time(models.Model):
         if self.rank is not None:
             return self.rank
 
-        faster_records = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time__lt=self.time)
-        tie_records_older = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time=self.time, id__lt=self.id)
-        return faster_records.count() + tie_records_older.count() + 1
+        faster_times = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time__lt=self.time)
+        older_equal_times = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time=self.time, id__lte=self.id)
+        return faster_times.count() + older_equal_times.count()
 
 
 class Checkpoint(models.Model):
