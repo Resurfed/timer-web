@@ -39,18 +39,72 @@ class Time(models.Model):
         unique_together = (('map', 'player', 'stage', 'type'),)
         index_together = (('map', 'type', 'stage'),)
 
-    def __str__(self):
-        return "%s - %s (Type: %s, Stage: %s)" % (self.player, self.map, self.type, self.stage)
-
     def actual_rank(self):
+        """
+        :return: the exact rank value of the time.
 
-        # as an optimization, only the top 10 best times are ranked
+        This is the reliable way to determine a time's rank, as the
+        database column for rank is meant solely for filtering top times.
+        """
         if self.rank is not None:
             return self.rank
 
-        faster_times = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time__lt=self.time)
-        older_equal_times = Time.objects.filter(map=self.map, type=self.type, stage=self.stage, time=self.time, id__lte=self.id)
+        faster_times = Time.objects.filter(
+            map=self.map,
+            type=self.type,
+            stage=self.stage,
+            time__lt=self.time
+        )
+
+        older_equal_times = Time.objects.filter(
+            map=self.map,
+            type=self.type,
+            stage=self.stage,
+            time=self.time,
+            date_updated__lte=self.date_updated
+        )
+
         return faster_times.count() + older_equal_times.count()
+
+    def update_rank_cache(self, limit=10):
+        """
+        :param limit: The number of top rank values to store as cache.
+        The rank cache is only required for ease of access to top times.
+        """
+
+        if self.actual_rank() > limit:
+            return
+
+        # clear existing ranks.
+        Time.objects.all().filter(
+            map=self.map,
+            type=self.type,
+            stage=self.stage,
+            rank__isnull=0
+        ).update(rank=None)
+
+        # reset ranks.
+        times = Time.objects.all().filter(
+            map=self.map,
+            type=self.type,
+            stage=self.stage
+        )
+        
+        times = times.order_by('time', '-date_updated')[:limit]
+
+        for index, time in enumerate(times):
+            time.rank = index + 1
+            super(Time, time).save()
+
+    def save(self, *args, **kwarg):
+        """
+        Automatically update rank column on save.
+        """
+        super(Time, self).save(args, kwarg)
+        self.update_rank_cache()
+
+    def __str__(self):
+        return "%s - %s (Type: %s, Stage: %s)" % (self.player, self.map, self.type, self.stage)
 
 
 class Checkpoint(models.Model):

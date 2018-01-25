@@ -11,15 +11,12 @@ class TimeRetrieveModelMixin(object):
 
 
 class TimeListModelMixin(object):
-    """
-    List a queryset.
-    """
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-
             for instance in page:
                 instance.rank = instance.actual_rank()
 
