@@ -34,6 +34,12 @@ class Time(models.Model):
     completions = models.IntegerField(blank=True, default=1)
     best_rank = models.IntegerField(blank=True, null=True)
     date_demoted = models.DateTimeField(blank=True, null=True)
+    enter_xy_speed = models.FloatField(blank=True, null=True)
+    enter_z_speed = models.FloatField(blank=True, null=True)
+    exit_xy_speed = models.FloatField(blank=True, null=True)
+    exit_z_speed = models.FloatField(blank=True, null=True)
+    avg_xy_speed = models.FloatField(blank=True, null=True)
+    avg_z_speed = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = (('map', 'player', 'stage', 'type'),)
@@ -88,9 +94,7 @@ class Time(models.Model):
             map=self.map,
             type=self.type,
             stage=self.stage
-        )
-        
-        times = times.order_by('time', '-date_updated')[:limit]
+        ).order_by('time', '-date_updated')[:limit]
 
         for index, time in enumerate(times):
             time.rank = index + 1
@@ -114,7 +118,12 @@ class Checkpoint(models.Model):
     zone = models.SmallIntegerField()
     time = models.FloatField()
     stage_time = models.FloatField()
-    velocity = models.FloatField(blank=True, null=True)
+    enter_xy_speed = models.FloatField(blank=True, null=True)
+    enter_z_speed = models.FloatField(blank=True, null=True)
+    exit_xy_speed = models.FloatField(blank=True, null=True)
+    exit_z_speed = models.FloatField(blank=True, null=True)
+    avg_xy_speed = models.FloatField(blank=True, null=True)
+    avg_z_speed = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = (('player', 'map', 'zone'),)
