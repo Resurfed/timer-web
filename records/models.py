@@ -14,6 +14,41 @@ class Server(models.Model):
         return self.name
 
 
+class TimeManager(models.Manager):
+    def update_rank_cache(self, map_id, map_type, stage, rank=0, limit=10):
+        """
+        :param map_id: the map id
+        :param map_type: the map type
+        :param stage: the stage to update
+        :param rank: the time rank which caused the update. Useful for determining
+        if the cache actually needs updating.
+
+        :param limit: the amount of top time ranks to cache
+        """
+
+        if rank > limit:
+            return
+
+        # clear existing ranks.
+        Time.objects.all().filter(
+            map=map_id,
+            type=map_type,
+            stage=stage,
+            rank__isnull=0
+        ).update(rank=None)
+
+        # reset ranks.
+        times = Time.objects.all().filter(
+            map=map_id,
+            type=map_type,
+            stage=stage
+        ).order_by('time', '-date_updated')[:limit]
+
+        for index, time in enumerate(times):
+            time.rank = index + 1
+            super(Time, time).save()
+
+
 class Time(models.Model):
     id = models.AutoField(primary_key=True)
     map = models.ForeignKey('maps.Map', on_delete=models.PROTECT)
@@ -45,6 +80,8 @@ class Time(models.Model):
         unique_together = (('map', 'player', 'stage', 'type'),)
         index_together = (('map', 'type', 'stage'),)
 
+    objects = TimeManager()
+
     def actual_rank(self):
         """
         :return: the exact rank value of the time.
@@ -72,40 +109,13 @@ class Time(models.Model):
 
         return faster_times.count() + older_equal_times.count()
 
-    def update_rank_cache(self, limit=10):
-        """
-        :param limit: The number of top rank values to store as cache.
-        The rank cache is only required for ease of access to top times.
-        """
-
-        if self.actual_rank() > limit:
-            return
-
-        # clear existing ranks.
-        Time.objects.all().filter(
-            map=self.map,
-            type=self.type,
-            stage=self.stage,
-            rank__isnull=0
-        ).update(rank=None)
-
-        # reset ranks.
-        times = Time.objects.all().filter(
-            map=self.map,
-            type=self.type,
-            stage=self.stage
-        ).order_by('time', '-date_updated')[:limit]
-
-        for index, time in enumerate(times):
-            time.rank = index + 1
-            super(Time, time).save()
-
     def save(self, *args, **kwarg):
         """
         Automatically update rank column on save.
         """
         super(Time, self).save(args, kwarg)
-        self.update_rank_cache()
+        Time.objects.update_rank_cache(self.map, self.type, self.stage, rank=self.actual_rank())
+
 
     def __str__(self):
         return "%s - %s (Type: %s, Stage: %s)" % (self.player, self.map, self.type, self.stage)
