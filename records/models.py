@@ -92,22 +92,22 @@ class Time(models.Model):
         if self.rank is not None:
             return self.rank
 
-        faster_times = Time.objects.filter(
+        rank = Time.objects.filter(
             map=self.map,
             type=self.type,
             stage=self.stage,
             time__lt=self.time
-        )
+        ).count()
 
-        older_equal_times = Time.objects.filter(
+        rank += Time.objects.filter(
             map=self.map,
             type=self.type,
             stage=self.stage,
             time=self.time,
             date_updated__lte=self.date_updated
-        )
+        ).count()
 
-        return faster_times.count() + older_equal_times.count()
+        return rank
 
     def save(self, *args, **kwarg):
         """
@@ -115,7 +115,6 @@ class Time(models.Model):
         """
         super(Time, self).save(args, kwarg)
         Time.objects.update_rank_cache(self.map, self.type, self.stage, rank=self.actual_rank())
-
 
     def __str__(self):
         return "%s - %s (Type: %s, Stage: %s)" % (self.player, self.map, self.type, self.stage)
