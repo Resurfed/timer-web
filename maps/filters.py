@@ -5,6 +5,7 @@ from .models import Map, Zone
 class MapFilter(filters.FilterSet):
     min_difficulty = filters.NumberFilter(name="difficulty", lookup_expr='gte')
     max_difficulty = filters.NumberFilter(name="difficulty", lookup_expr='lte')
+    name_contains = filters.CharFilter(name='name', lookup_expr='icontains')
 
     class Meta:
         model = Map
