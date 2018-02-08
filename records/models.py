@@ -15,32 +15,23 @@ class Server(models.Model):
 
 
 class TimeManager(models.Manager):
-    def update_rank_cache(self, map_id, map_type, stage, rank=0, limit=10):
-        """
-        :param map_id: the map id
-        :param map_type: the map type
-        :param stage: the stage to update
-        :param rank: the time rank which caused the update. Useful for determining
-        if the cache actually needs updating.
-
-        :param limit: the amount of top time ranks to cache
-        """
+    def update_rank_cache(self, mid, mtype, stage, rank=0, limit=10):
 
         if rank > limit:
             return
 
         # clear existing ranks.
         Time.objects.all().filter(
-            map=map_id,
-            type=map_type,
+            map=mid,
+            type=mtype,
             stage=stage,
             rank__isnull=0
         ).update(rank=None)
 
         # reset ranks.
         times = Time.objects.all().filter(
-            map=map_id,
-            type=map_type,
+            map=mid,
+            type=mtype,
             stage=stage
         ).order_by('time', '-date_updated')[:limit]
 

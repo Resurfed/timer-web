@@ -6,6 +6,10 @@ class TimeSerializer(serializers.ModelSerializer):
     player_name = serializers.SerializerMethodField()
     map_name = serializers.SerializerMethodField()
     rank = serializers.SerializerMethodField()
+    completions = serializers.IntegerField(
+        source='',
+        read_only=True
+    )
 
     def get_player_name(self, obj):
         return obj.player.name
@@ -19,3 +23,4 @@ class TimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Time
         fields = '__all__'
+
