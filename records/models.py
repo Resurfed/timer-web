@@ -21,19 +21,10 @@ class TimeManager(models.Manager):
             return
 
         # clear existing ranks.
-        Time.objects.all().filter(
-            map=mid,
-            type=mtype,
-            stage=stage,
-            rank__isnull=0
-        ).update(rank=None)
+        Time.objects.all().filter(map=mid, type=mtype, stage=stage).update(rank=None)
 
         # reset ranks.
-        times = Time.objects.all().filter(
-            map=mid,
-            type=mtype,
-            stage=stage
-        ).order_by('time', '-date_updated')[:limit]
+        times = Time.objects.all().filter(map=mid, type=mtype, stage=stage).order_by('time', '-date_updated')[:limit]
 
         for index, time in enumerate(times):
             time.rank = index + 1
@@ -104,7 +95,7 @@ class Time(models.Model):
         """
         Automatically update rank column on save.
         """
-        super(Time, self).save(args, kwarg)
+        super(Time, self).save(*args, **kwarg)
         Time.objects.update_rank_cache(self.map, self.type, self.stage, rank=self.actual_rank())
 
     def __str__(self):
